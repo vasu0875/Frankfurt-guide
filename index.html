@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Frankfurt in a Day: Audio Guide</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;800&family=Source+Serif+4:wght@400;600&display=swap">
+<style>
+:root{--bg:#eef3f4;--ink:#12292f;--mute:#4d6469;--card:#fff;--line:#c9d6d9;--accent:#b9770e;--river:#1f6f78;--on:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1b1f;--ink:#e6eff1;--mute:#93aab0;--card:#152a30;--line:#264047;--accent:#e6a93a;--river:#5cc0cb;--on:#0e1b1f}}
+:root[data-theme="dark"]{--bg:#0e1b1f;--ink:#e6eff1;--mute:#93aab0;--card:#152a30;--line:#264047;--accent:#e6a93a;--river:#5cc0cb;--on:#0e1b1f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 "Source Serif 4",Georgia,serif}
+header{max-width:720px;margin:0 auto;padding:40px 20px 16px}
+h1{font:800 clamp(2.4rem,9vw,4.2rem)/1 "Bricolage Grotesque",system-ui,sans-serif;margin:0 0 12px;letter-spacing:-.02em}
+.lede{color:var(--mute);margin:0 0 20px}
+button,a.btn{font:500 1rem "Bricolage Grotesque",system-ui,sans-serif;border-radius:999px;padding:10px 18px;border:2px solid var(--river);background:transparent;color:var(--river);cursor:pointer;text-decoration:none;display:inline-block}
+button.primary{background:var(--river);color:var(--on)}
+button:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 20px}
+.bar div{max-width:720px;margin:0 auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#status{color:var(--mute);font-size:.9rem;margin-left:auto}
+main{max-width:720px;margin:0 auto;padding:8px 20px 60px}
+.stop{position:relative;padding:26px 0 26px 34px;border-left:3px solid var(--line);margin-left:8px}
+.stop::before{content:"";position:absolute;left:-10px;top:32px;width:17px;height:17px;border-radius:50%;background:var(--bg);border:3px solid var(--river)}
+.stop.on{border-left-color:var(--accent)}
+.stop.on::before{background:var(--accent);border-color:var(--accent)}
+.time{font:500 .95rem "Bricolage Grotesque",system-ui,sans-serif;color:var(--accent)}
+h2{font:800 1.7rem/1.15 "Bricolage Grotesque",system-ui,sans-serif;margin:2px 0 8px}
+.stop p{margin:0 0 10px;max-width:62ch}
+.tip{color:var(--mute);font-size:.95rem}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.walk{color:var(--mute);font-size:.95rem;margin-top:14px}
+.walk a{color:var(--river)}
+.start{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin:16px 0 8px}
+.start h2{margin-top:0}
+.start p{margin:0 0 10px}
+.start .acts{margin-top:8px}
+.mapsec{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:8px 0 8px}
+.mapsec h2{margin:0 0 4px}
+.mapsec svg{width:100%;height:auto;display:block;border-radius:10px;background:var(--bg)}
+.mk{cursor:pointer}
+.mk circle,.mk rect{fill:var(--river);stroke:var(--card);stroke-width:2;transition:fill .2s}
+.mk text{fill:var(--on);font:600 12px system-ui,sans-serif;pointer-events:none}
+.mk:hover circle,.mk.on circle,.mk:focus circle{fill:var(--accent)}
+.mk:focus{outline:none}
+#cap{margin-top:10px;min-height:3.2em}
+#cap b{font-family:"Bricolage Grotesque",system-ui,sans-serif}
+#cap a{color:var(--river);margin-right:12px}
+footer{max-width:720px;margin:0 auto;padding:0 20px 40px;color:var(--mute);font-size:.9rem}
+@media (prefers-reduced-motion:no-preference){.stop{transition:border-color .3s}}
+</style>
+</head>
+<body>
+<header>
+<h1>Frankfurt in a day</h1>
+<p class="lede">Seven stops, about 9.5 hours from 8:45 to 18:30, mostly on foot. Press play and the guide tells you how to get to each stop, with distance and time, then explains why it matters. Tap Watch to see it on video. </p>
+</header>
+<div class="bar"><div>
+<button class="primary" id="playAll">Play full tour</button>
+<button id="pause">Stop</button>
+<span id="status">Ready</span>
+</div></div>
+<main id="stops"></main>
+<footer>Narration uses your browser's built-in voice, so it works best in Chrome, Safari or Edge with sound on. Watch links open YouTube searches in a new tab. Check opening hours and prices before you go, since they change.</footer>
+<script>
+const stops=[
+{t:"9:00",n:"Römerberg",q:"Römerberg Frankfurt walking tour",
+a:"Welcome to Römerberg, Frankfurt's old town square and the best place to begin. The Römer, the stepped-gable building in front of you, has been the city hall since 1405. Emperors were once feasted here after their coronations. The timber-framed houses on the east side look medieval, but they are careful reconstructions built in the 1980s, because the old town was largely destroyed in the Second World War. Take a moment at the Fountain of Justice in the middle of the square, then walk a few minutes to the cathedral.",
+tip:"Go early for empty photos. Free, 20 to 30 minutes.",map:"Frankfurt Cathedral"},
+{t:"9:45",n:"Frankfurt Cathedral (Kaiserdom)",q:"Frankfurt Cathedral Kaiserdom tour",
+a:"This is the Kaiserdom, the Imperial Cathedral of Saint Bartholomew. From the sixteenth century until 1792, Holy Roman Emperors were crowned in Germany's most important election city, and this is where the coronations took place. The red sandstone tower, about 95 metres tall, was finished in the nineteenth century following medieval plans. If you have the energy, you can climb the tower steps for a view over the old town and the skyline behind it. Inside, look for the Gothic choir stalls and the carved Crucifixion group.",
+tip:"Tower climb is a few hundred steps. Allow 45 minutes.",map:"Paulskirche Frankfurt"},
+{t:"10:50",n:"Paulskirche",q:"Paulskirche Frankfurt 1848 parliament",
+a:"Paulskirche, Saint Paul's Church, is a symbol of German democracy. In 1848, the first freely elected German national assembly met here to write a constitution for a united Germany. The attempt failed at the time, but its ideas shaped later constitutions. The church was destroyed in 1944 and rebuilt as a plain circular hall, reopening in 1948, the centenary of the assembly. Today it hosts ceremonies, including the Peace Prize of the German Book Trade. Step inside for the exhibition if it's open.",
+tip:"Free entry. 20 minutes.",map:"Kleinmarkthalle Frankfurt"},
+{t:"11:20",n:"Kleinmarkthalle",q:"Kleinmarkthalle Frankfurt food market",
+a:"Time for lunch at Kleinmarkthalle, a covered market that has fed Frankfurters since 1879. Stalls sell sausages, cheeses, fresh bread and produce from across the region. Try the local specialties. Grüne Soße is a cold sauce of seven herbs served with eggs and potatoes. Handkäs mit Musik is a sour-milk cheese marinated with onions and vinegar. And a Frankfurter sausage here tastes nothing like the supermarket version. Eat standing at a counter like the locals do.",
+tip:"Closed on Sundays. Go before noon to avoid the rush.",map:"Eiserner Steg Frankfurt"},
+{t:"12:35",n:"Eiserner Steg and the Museumsufer",q:"Eiserner Steg Museumsufer Frankfurt",
+a:"Now walk to the river. The Eiserner Steg, or Iron Footbridge, opened in 1869 and is Frankfurt's oldest pedestrian crossing over the Main. It is the best spot to see the skyline of glass towers rising behind the old church spires, a contrast that gives Frankfurt its nickname Mainhattan. Cross to the south bank, where the Museumsufer, or Museum Embankment, lines the water with around a dozen museums. The Städel, one of Germany's leading art museums, is the highlight. If you prefer fresh air, simply stroll the riverside lawns.",
+tip:"Pick one museum, not five. Allow 1.5 to 2 hours.",map:"Sachsenhausen Frankfurt"},
+{t:"15:00",n:"Sachsenhausen",q:"Sachsenhausen Frankfurt apple wine Apfelwein",
+a:"Sachsenhausen, on the south bank, is Frankfurt's traditional apple wine district. Apfelwein, called Ebbelwoi in the local dialect, is a tart, still cider served in a grey stoneware jug with a diamond pattern and drunk from a ribbed glass. Head to the cobbled streets around Große Rittergasse, where old taverns have long communal tables, and try it with a plate of local food. Order it sour, or mix it with sparkling water if you prefer it lighter. Then cross back to the north side for the finale.",
+tip:"Try it once, then decide. Many taverns close between lunch and evening, so check hours.",map:"Main Tower Frankfurt"},
+{t:"17:30",n:"Main Tower",q:"Main Tower Frankfurt observation deck view",
+a:"Finish at the Main Tower, which has the only public observation platform in a Frankfurt skyscraper, at about 200 metres. From here you can trace the whole day. Below you are the Römer and the cathedral tower, the ribbon of the Main river with the Iron Footbridge, and the museum embankment. On a clear evening you can see all the way to the Taunus hills. Time your visit for sunset, then watch the city lights come on. That completes your day in Frankfurt. Guten Appetit, and gute Nacht!",
+tip:"Book tickets online. It usually closes in bad weather, so check the day before.",map:null}
+];
+const GO=[
+"Getting here from your hotel: walk about 300 metres, roughly 4 minutes, to Festhalle Messe station. Take the U4 towards Enkheim for three stops, about 4 minutes, and get off at Dom Römer. From the exit it is a couple of minutes on foot to the square. Door to door that is roughly 15 minutes for about 3 kilometres. Walking the whole way is about 40 minutes.",
+"Getting here from Römerberg: it is about 200 metres east, a 3 minute walk. The Dom Römer U-Bahn exit is at the cathedral's west tower, so there is no need for public transport.",
+"Getting here from the cathedral: walk west about 400 metres, roughly 6 minutes, back through the old town. Public transport is not worth it for this short hop.",
+"Getting here from Paulskirche: walk north-east about 500 metres, around 7 minutes. It is on foot only.",
+"Getting here from Kleinmarkthalle: walk south through the old town and Römerberg down to the river, about 700 metres, roughly 10 minutes. Walking is the quickest option.",
+"Getting here from the bridge: cross the Main on foot and continue south about 600 metres, roughly 8 minutes, to Große Rittergasse. No transport needed.",
+"Getting here from Sachsenhausen: walking back over the bridge and through the old town is about 2 kilometres, or 30 minutes. Public transport can cut that to roughly 20 minutes: take a tram or bus north across the river to Willy-Brandt-Platz, then walk about 5 minutes to the Main Tower on Neue Mainzer Straße. Check the directions link for live departures."
+];
+stops.forEach((s,i)=>s.go=GO[i]);
+const STAY=[
+"Spend about 40 minutes here: enough to walk the square, see the Römer facade and the Fountain of Justice, and take photos.",
+"Spend about an hour: 20 minutes for the interior and 40 for the tower climb. Skip the tower to save 40 minutes.",
+"Spend about 25 minutes, including the exhibition if it is open.",
+"Spend about an hour, including a light lunch.",
+"Spend about 2 hours and 15 minutes: 20 minutes on the bridge and riverside, then about an hour and a half at the Städel or one other museum. Short on time? Skip the museum and save 90 minutes.",
+"Spend about 2 hours, including a rest and an early dinner with apple wine.",
+"Spend about an hour, and time your visit for sunset."
+];
+const NEXT=[
+"Next up is the Frankfurt Cathedral, a 3 minute walk east.",
+"Next up is Paulskirche, about 6 minutes on foot to the west.",
+"Next up is Kleinmarkthalle for lunch, about 7 minutes to the north-east.",
+"Next up is the Iron Footbridge and the Museumsufer, about 10 minutes south to the river.",
+"Next up is Sachsenhausen for a rest and apple wine, about 8 minutes across the bridge.",
+"Your last stop is the Main Tower for the view, about 20 minutes away by tram or bus, or 30 on foot. Aim to arrive about an hour before sunset.",
+"That completes the tour. To get back to the hotel, walk 5 minutes to Willy-Brandt-Platz, take the U4 towards Bockenheimer Warte for two stops to Festhalle Messe, then walk 4 minutes. It takes around 15 minutes in all."
+];
+stops.forEach((s,i)=>{s.stay=STAY[i];s.next=NEXT[i]});
+const el=document.getElementById("stops"),st=document.getElementById("status");
+let cur=-1,all=false;
+stops.forEach((s,i)=>{
+const d=document.createElement("section");d.className="stop";d.id="s"+i;
+const walk=s.map?`<div class="walk">Next: <a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(s.n+" Frankfurt")}&destination=${encodeURIComponent(s.map)}&travelmode=walking">walking directions to ${s.map.replace(" Frankfurt","")}</a></div>`:"";
+d.innerHTML=`<div class="time">${s.t}</div><h2>${s.n}</h2><p class="tip"><b>${s.go.split(":")[0]}:</b>${s.go.slice(s.go.indexOf(":")+1)}</p><p>${s.a}</p><p class="tip">${s.tip}</p><p class="tip"><b>Time here:</b> ${s.stay.replace(/^Spend /,"Spend ")}</p><p class="tip"><b>Next:</b> ${s.next}</p>
+<div class="acts"><button data-i="${i}" class="listen">Listen</button><a class="btn" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=${encodeURIComponent(s.q)}">Watch video</a></div>${walk}`;
+el.appendChild(d)});
+const HOTEL="Premier Inn Frankfurt Westend, Hamburger Allee 12, 60486 Frankfurt";
+const E=encodeURIComponent,M="https://www.google.com/maps/dir/?api=1";
+const wp=["Römerberg Frankfurt","Frankfurt Cathedral","Paulskirche Frankfurt","Kleinmarkthalle Frankfurt","Eiserner Steg Frankfurt","Große Rittergasse Frankfurt"].join("|");
+const full=`${M}&origin=${E(HOTEL)}&destination=${E("Main Tower Frankfurt")}&waypoints=${E(wp)}&travelmode=walking`;
+const toRoemer=m=>`${M}&origin=${E(HOTEL)}&destination=${E("Römerberg Frankfurt")}&travelmode=${m}`;
+const sd=document.createElement("section");sd.className="start";
+sd.innerHTML=`<div class="time">8:45, leave the hotel</div><h2>Start: Premier Inn Westend</h2>
+<p>Your hotel is at Hamburger Allee 12, near Festhalle/Messe. Römerberg is about 3 km east, roughly a 40-minute walk or a short ride by U-Bahn or tram to the old town. Taking public transport saves your legs for the day, so I suggest a ride to the start and walking after that.</p>
+<div class="acts"><a class="btn" target="_blank" rel="noopener" href="${toRoemer("transit")}">Hotel to Römerberg by transit</a><a class="btn" target="_blank" rel="noopener" href="${toRoemer("walking")}">Hotel to Römerberg on foot</a></div>
+<p class="walk">Want the whole day on one map? <a target="_blank" rel="noopener" href="${full}">Open the full route from the hotel</a>. It ends at the Main Tower, about 2.5 km from the hotel, so you can walk or ride back after sunset.</p>`;
+el.prepend(sd);
+const geo=[[50.1106,8.6821],[50.1109,8.6853],[50.1113,8.6803],[50.1136,8.6835],[50.1083,8.6845],[50.1030,8.6855],[50.1130,8.6733]];
+const HG=[50.1127,8.6465];
+const L0=8.640,L1=8.695,T0=50.116,T1=50.099,W=680,H=330;
+const px=(la,lo)=>[((lo-L0)/(L1-L0)*W).toFixed(1),((T0-la)/(T0-T1)*H).toFixed(1)];
+const riv=[[50.1005,8.640],[50.1025,8.652],[50.1050,8.663],[50.1068,8.672],[50.1075,8.680],[50.1078,8.687],[50.1065,8.695]].map(q=>px(q[0],q[1]).join(",")).join(" ");
+const P=geo.map(g=>px(g[0],g[1])),hp=px(HG[0],HG[1]);
+const route=[hp,...P.slice(0,6)].map(q=>q.join(",")).join(" ");
+let mk="";
+P.forEach((q,i)=>{mk+=`<g class="mk" tabindex="0" role="button" aria-label="${stops[i].n}" data-i="${i}"><circle cx="${q[0]}" cy="${q[1]}" r="12"/><text x="${q[0]}" y="${+q[1]+4}" text-anchor="middle">${i+1}</text></g>`});
+const ms=document.createElement("section");ms.className="mapsec";
+ms.innerHTML=`<h2>Map: hover to listen</h2>
+<p class="tip">Move your mouse over a numbered pin to hear why the place matters. On a phone, tap a pin. Click once anywhere first, since browsers block sound until you interact.</p>
+<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Simplified map of the tour stops">
+<polyline points="${riv}" fill="none" stroke="var(--river)" stroke-opacity=".28" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="24" y="${H-30}" fill="var(--mute)" font-size="12" font-family="system-ui,sans-serif">River Main (approximate)</text>
+<polyline points="${route}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>
+<line x1="${P[5][0]}" y1="${P[5][1]}" x2="${P[6][0]}" y2="${P[6][1]}" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6 5"/>
+<g class="mk" tabindex="0" data-h="1" aria-label="Premier Inn Westend"><rect x="${hp[0]-11}" y="${hp[1]-11}" width="22" height="22" rx="4"/><text x="${hp[0]}" y="${+hp[1]+4}" text-anchor="middle">H</text></g>
+${mk}</svg>
+<div id="cap" aria-live="polite">Hover a pin. H is your hotel.</div>
+<div class="acts"><a class="btn" target="_blank" rel="noopener" href="https://maps.apple.com/?saddr=${E(HOTEL)}&daddr=${E("Römerberg, Frankfurt")}&dirflg=w">Hotel to Römerberg in Apple Maps</a></div>`;
+sd.after(ms);
+const cap=document.getElementById("cap");
+function showCap(i){
+const g=geo[i],n=stops[i].n,ll=g[0]+","+g[1];
+cap.innerHTML=`<b>${i+1}. ${n}</b><br><span class="tip">${stops[i].go}</span><br><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${ll}">Open in Google Maps</a><a target="_blank" rel="noopener" href="https://maps.apple.com/?ll=${ll}&q=${E(n)}">Open in Apple Maps</a>`}
+ms.querySelectorAll(".mk[data-i]").forEach(m=>{
+const i=+m.dataset.i;
+m.addEventListener("pointerenter",e=>{if(e.pointerType==="mouse"){all=false;showCap(i);speak(i,1)}});
+m.addEventListener("pointerleave",e=>{if(e.pointerType==="mouse"){speechSynthesis.cancel();mark(-1);st.textContent="Ready"}});
+m.addEventListener("click",()=>{all=false;showCap(i);speak(i,1)});
+m.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();all=false;showCap(i);speak(i,1)}});
+});
+
+const first=document.querySelector("#s0 .walk");
+if(first)first.insertAdjacentHTML("beforebegin","");
+function mark(i){document.querySelectorAll(".stop").forEach((x,k)=>x.classList.toggle("on",k===i))}
+function stop(){speechSynthesis.cancel();all=false;cur=-1;mark(-1);st.textContent="Ready"}
+function speak(i,ns){
+speechSynthesis.cancel();cur=i;mark(i);
+if(!ns)document.getElementById("s"+i).scrollIntoView({behavior:"smooth",block:"center"});
+const u=new SpeechSynthesisUtterance(stops[i].n+". "+stops[i].go+" "+stops[i].a+" "+stops[i].stay+" "+stops[i].next);
+u.lang="en-GB";u.rate=.95;
+u.onstart=()=>st.textContent="Playing "+(i+1)+" of "+stops.length;
+u.onend=()=>{if(all&&i<stops.length-1)speak(i+1);else{mark(-1);st.textContent="Finished";all=false}};
+speechSynthesis.speak(u)}
+if(!("speechSynthesis" in window)){st.textContent="Audio not supported in this browser"}
+document.addEventListener("click",e=>{const b=e.target.closest(".listen");if(b){all=false;speak(+b.dataset.i)}});
+document.getElementById("playAll").onclick=()=>{all=true;speak(0)};
+document.getElementById("pause").onclick=stop;
+</script>
+</body>
+</html>
